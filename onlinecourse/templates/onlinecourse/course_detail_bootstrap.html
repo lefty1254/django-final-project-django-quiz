@@ -54,18 +54,46 @@
             <!-- <HINT> Use Bootstrap Collapse to hide exam first, more details could be found here
             https://www.w3schools.com/bootstrap4/bootstrap_collapse.asp-->
 
-            <!--
+            
 
-            A collapse example here:
-            <div id="exam" class="collapse">
-                Click to expand elements within the collapse div
-                </div>
-
-            -->
-
+            <!-- A collapse example here: -->
+            
             <!-- <HINT> If user is authenticated, show course exam with a list of question -->
+            {% if user.is_authenticated %}
+            <div id="exam" class="container-fluid">
+                <!-- <HINT> Each example will have many questions -->
+                
+                <form id="questionform" action="point to a submit view" method="post">
+                    {% for question in course.question_set.all %}
+                    <div class="card mt-1">
+                        <div class="card-header"><h5>{{ question.question_text}}</h5></div>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% for choice in question.choice_set.all %}
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="choice_{{choice.id}}"
+                                           class="form-check-input" id="{{choice.id}}"
+                                           value="{{choice.id}}">{{ choice.choice_text }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
 
-            <!-- <HINT> Each example will have many questions -->
+                    <input class="btn btn-success btn-block" type="submit" value="Submit">
+                </form> 
+
+                
+            </div>
+
+
+            {% endif %}
+
+            
+
+            
 
             <!-- <HINT> Each question will have many choices -->
 
