@@ -117,10 +117,12 @@ def submit(request, course_id):
     enrollment  = Enrollment.objects.get(user=user, course=course)
     # Collect the selected choices from exam form
     selected_choices = Choice.objects.filter(id__in=extract_answers(request))
-    # Add each selected choice object to the submission object
+    
     # submission.choices = selected_choices
     # Create a submission object referring to the enrollment
-    submission = Submission.objects.create(enrollment=enrollment, choices=selected_choices)
+    submission = Submission.objects.create(enrollment=enrollment)
+    # Add each selected choice object to the submission object
+    submission.choices.set(selected_choices)
     sub_id = submission.pk
     # Redirect to show_exam_result with the submission id
     return show_exam_result(request,course_id,sub_id)
@@ -150,16 +152,16 @@ def show_exam_result(request, course_id, submission_id):
     questions = Question.objects.filter(course=course)
     submission = get_object_or_404(Submission,pk=submission_id)
     correct = 0
-    selected_ids = [choice.pk for choice in submission.choices]
+    selected_ids = [choice.pk for choice in submission.choices.all()]
     for question in questions:
         if question.is_get_score(selected_ids):
             correct+=1
             
-    context['grade']= 100*correct/len(questions)
+    context['grade']= int(100*correct/len(questions))
     context['course']= course
     context['selected_ids'] = selected_ids
 
-    return return render(request, 'onlinecourse/exam_result.bootstrap.html', context)
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
 
 
 
